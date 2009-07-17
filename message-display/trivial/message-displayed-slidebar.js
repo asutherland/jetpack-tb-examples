@@ -1,3 +1,8 @@
+/* ***** BEGIN LICENSE BLOCK *****
+ * Any copyright is dedicated to the Public Domain.
+ * http://creativecommons.org/licenses/publicdomain/
+ * ***** END LICENSE BLOCK ***** */
+
 /*
  * Add a slidebar that displays the author and 'to' recipients of a message
  *  when a message is displayed.  This updates as tab changes are made.
