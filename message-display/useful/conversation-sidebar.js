@@ -189,3 +189,24 @@ function makeDateFriendly(date)
 
   return dateTime;
 }
+
+/**
+ * Helper function to replace a placeholder string with a real string
+ *
+ * @param aText
+ *        Source text containing placeholder (e.g., #1)
+ * @param aIndex
+ *        Index number of placeholder to replace
+ * @param aValue
+ *        New string to put in place of placeholder
+ * @return The string with placeholder replaced with the new string
+ */
+function replaceInsert(aText, aIndex, aValue)
+{
+  try {
+    return aText.replace("#" + aIndex, aValue);
+  } catch (e) {
+    dump("aText = " + aText + '\n');
+    dumpExc(e);
+  }
+}
