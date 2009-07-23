@@ -22,14 +22,8 @@
  * THE SOFTWARE.
  * ***** END LICENSE BLOCK ***** */
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-
 jetpack.future.import("thunderbird.messageDisplay");
-
-let tb = jetpack.thunderbird;
-
-tb.messageDisplay.overrideMessageDisplay({
+jetpack.thunderbird.messageDisplay.overrideMessageDisplay({
   match: {
     fromAddress: /(?:auto-confirm|ship-confirm)@amazon.(?:com|ca)/
   },
