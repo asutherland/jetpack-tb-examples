@@ -4,11 +4,8 @@
  * ***** END LICENSE BLOCK ***** */
 
 /*
- * Add a slidebar that displays the author and 'to' recipients of a message
- *  when a message is displayed.  This updates as tab changes are made.
- *  It does depend on the message having been gloda indexed already; in the
- *  future we will be able to relax that requirement while still providing
- *  the gloda data-model.
+ * Hello-world type app that adds a message reader panel that says hello to
+ *  whomever sent the message.
  */
 
 jetpack.future.import("thunderbird.messageDisplay");
