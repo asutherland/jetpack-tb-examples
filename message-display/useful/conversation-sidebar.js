@@ -113,6 +113,7 @@ ConversationDisplay.prototype = {
     let body = this.doc.body;
     let message = $("<div />", body)
       .addClass("message")
+      .attr("id", aMsg.messageId)
       .click(function () {
                tb.messageDisplay.showMessage(aMsg);
              });
