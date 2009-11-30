@@ -71,34 +71,30 @@ tb.mwtl.defineWidget({
     type: "gloda",
     noun: "message",
   },
-  content: {
-    root: <div>
-        <div class="subject">{wt.bind("subject")}</div>
-      </div>,
-    altRoot: wt.parts(["subjectGroup", "authorGroup", "recipientsGroup",
-                       "bodyGroup"]),
-    subjectGroup: wt.parts["subject", "tags"],
-    subject: wt.bind("subject"),
-    tags: wt.widgetList({type: "gloda", noun: "tag"}),
-    authorGroup: wt.widget({type: "gloda", noun: "identity", detail: "low"}),
-    recipientsGroup: wt.widgetList({type: "gloda", noun: "identity",
-                                    detail: "low"}),
-    bodyGroup: "",
-  },
   // DOM/sub-widget structure
   structure: {
     subjectGroup: {
-
+      star: wt.subWidget({subpart: "star"}),
+      subject: wt.bind("subject"),
+      tags: wt.widgetList({type: "gloda", noun: "tag"},
+                          {bind: "tags"}),
     },
-    authorGroup: {},
-    recipientsGroup: {},
+    authorGroup: {
+      author: wt.widget({type: "gloda", noun: "identity", detail: "low"},
+                        "from"),
+      date: null,
+    },
+    recipientsGroup: wt.widgetList({type: "gloda", noun: "identity",
+                                    detail: "low"}, "recipients"),
     bodyGroup: {
       snippet: wt.subWidget({subpart: "body"}),
       attachments: wt.subWidget({subpart: "attachments"})
     }
   },
   // styling
+  style: {
 
+  },
   // content
 
   // events
@@ -109,6 +105,12 @@ tb.mwtl.defineWidget({
       }
     }
   },
+  // implementation
+  impl: {
+    update: function() {
+
+    }
+  }
 });
 
 /**
@@ -138,15 +140,15 @@ tb.mwtl.defineWidget({
  *
  */
 tb.mwtl.defineWidget({
-  name: "message-collection",
+  name: "simple-gloda-collection",
   kind: tb.mwtl.kCollection,
   constraint: {
     type: "gloda-collection",
-    noun: "message",
     mode: "list",
   },
   structure: {
-    messages: mt.widgetList({type: "gloda", noun: "message"}),
+    countLabel: "${count} ${!noun.plural}",
+    items: mt.widgetList({type: "gloda"}),
   },
   contextActions: {
     facetInclude: {
@@ -165,19 +167,19 @@ tb.mwtl.defineWidget({
   },
   impl: {
     onItemsAdded: function(aItems) {
-      this.messages.addAll(aItems);
+      this.items_addAll(aItems);
     },
     /**
      * Force the bindings of updated items to change.
      */
     onItemsModified: function(aItems) {
-      this.messages.updateAll(aItems);
+      this.items_updateAll(aItems);
     },
     /**
      * Remove bindings for items that no longer exist.
      */
     onItemsRemoved: function(aItems) {
-      this.messages.removeAll(aItems);
+      this.items_removeAll(aItems);
     },
     /**
      * If we showed an in-progress thing, we would stop doing that here.
@@ -193,13 +195,13 @@ tb.tabs.defineTabType({
     let doc = tab.contentDocument;
     let contact = args.contact;
 
+    let recentMsgQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+    let recentMsgCollection = recentMsgQuery.getCollection();
+
     wt.wrap(doc)
-      .emit({type: "gloda", noun: "contact", detail: "high"},
-            contact);
-
-    let recentMsgQuery =
-
-      .emit({type: "gloda", noun: "message"})
+      .emit({type: "gloda", noun: "contact", detail: "high", obj: contact})
+      .emit({type: "gloda-collection", noun: "message", mode: "list",
+             obj: recentMsgCollection});
   },
   html: <>
   </>
