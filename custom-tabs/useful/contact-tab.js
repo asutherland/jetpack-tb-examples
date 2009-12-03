@@ -6,6 +6,7 @@
 
 const Cu = Components.utils;
 Cu.import("resource://app/modules/gloda/public.js");
+Components.utils.import("resource://app/modules/templateUtils.js");
 
 let mt = tb.mwtl;
 let dt = tb.decisionTree;
@@ -14,10 +15,10 @@ let dt = tb.decisionTree;
  * Contact display, not in your address book.
  */
 tb.mwtl.defineWidget({
-  name: "contact-detail",
+  name: "identity-detail",
   constraint: {
     type: "gloda",
-    noun: "contact",
+    noun: "identity",
     detail: "high",
   },
   structure: wt.bind("name"),
@@ -29,16 +30,14 @@ tb.mwtl.defineWidget({
 /**
  * Contact display, in your address book.
  */
-tb.mwtl.subclassWidget("contact-detail", {
-  name: "known-contact-detail",
+tb.mwtl.subclassWidget("identity-detail", {
+  name: "known-identity-detail",
   constraint: {
     type: "gloda",
-    noun: "contact",
+    noun: "identity",
     detail: "high",
     obj: {
-      identities: dt.anyInArrayMatches({
-        inAddressBook: true
-      })
+      inAddressBook: true
     }
   },
 });
@@ -62,6 +61,42 @@ tb.mwtl.defineWidget({
 });
 
 /**
+ * Unfriendly date.
+ */
+tb.mwtl.defineWidget({
+  constraint: {
+    type: "date",
+    mode: "absolute",
+  },
+  // Just make a straight-forward span.
+  structure: "",
+  impl: {
+    update: function() {
+      this.domNode.textContent = this.obj.toLocaleString();
+    }
+  }
+});
+
+/**
+ * Friendly date.
+ */
+tb.mwtl.defineWidget({
+  constraint: {
+    type: "date",
+    mode: "friendly",
+  },
+  // Just make a straight-forward span.
+  structure: "",
+  impl: {
+    update: function() {
+      this.domNode.textContent = makeFriendlyDateAgo(this.obj);
+    }
+  }
+});
+
+
+
+/**
  * Message Display.
  */
 tb.mwtl.defineWidget({
@@ -82,7 +117,8 @@ tb.mwtl.defineWidget({
     authorGroup: {
       author: wt.widget({type: "gloda", noun: "identity", detail: "low"},
                         "from"),
-      date: null,
+      date: wt.widget({type: "date", mode: "friendly", detail: "medium"},
+                      "date"),
     },
     recipientsGroup: wt.widgetList({type: "gloda", noun: "identity",
                                     detail: "low"}, "recipients"),
@@ -93,7 +129,25 @@ tb.mwtl.defineWidget({
   },
   // styling
   style: {
+    root: {
+      _:
+        "display: block;\
+        font-family: sans-serif;\
+        font-size: small;\
+        padding: 3px 0;\
+        margin: 3px 0;\
+        border-bottom: 1px solid #ddd;\
+        color: #555;\
+        background-color: #ffffff;",
 
+      ":hover": {
+        subject: "color: #000000; background-color: #e0eaf5;",
+      }
+    },
+    subject: {
+      ":hover": "color: #ffffff; background-color: #729fcf;",
+      ":focus": "color: #ffffff; background-color: #729fcf;",
+    }
   },
   // content
 
@@ -123,7 +177,10 @@ tb.mwtl.defineWidget({
     noun: "message",
     subpart: "star",
   },
-  styling: []
+  content: wt.bindAttribute("starred", "starred"),
+  style: {
+
+  }
 });
 
 tb.mwtl.defineWidget({
@@ -134,6 +191,29 @@ tb.mwtl.defineWidget({
     subpart: "body",
   },
 });
+
+tb.mwtl.defineWidget({
+  name: "tag",
+  constraint: {
+    type: "gloda",
+    noun: "tag",
+  },
+  content: wt.bind("tag"),
+  style: {
+    root:
+      "display: inline-block; /* to avoid splitting 'To' and 'Do' e.g. */\
+      -moz-margin-start: 0px;\
+      -moz-margin-end: 3px;\
+      padding: 0 0.5ex;\
+      background-image: url('chrome://messenger/skin/tagbg.png');\
+      -moz-border-radius: 3px;\
+      border-style: outset;\
+      border-width: 0.5px;\
+      text-shadow: 0 1px 0 rgba(238,238,236,0.4); /* Tango Alumninum 1 */\
+      color: #111111;"
+  },
+});
+
 
 /**
  * Message collection display.
