@@ -8,29 +8,28 @@ const Cu = Components.utils;
 Cu.import("resource://app/modules/gloda/public.js");
 Components.utils.import("resource://app/modules/templateUtils.js");
 
-let mt = tb.mwtl;
-let dt = tb.decisionTree;
+let wy = tb.wmsy;
 
 /**
  * Contact display, not in your address book.
  */
-tb.mwtl.defineWidget({
+tb.wmsy.defineWidget({
   name: "identity-detail",
   constraint: {
     type: "gloda",
     noun: "identity",
     detail: "high",
   },
-  structure: wt.bind("name"),
+  structure: wy.bind("name"),
   events: {
-    click: wt.showActions(),
+    click: wy.showActions(),
   }
 });
 
 /**
  * Contact display, in your address book.
  */
-tb.mwtl.subclassWidget("identity-detail", {
+tb.wmsy.subclassWidget("identity-detail", {
   name: "known-identity-detail",
   constraint: {
     type: "gloda",
@@ -42,28 +41,28 @@ tb.mwtl.subclassWidget("identity-detail", {
   },
 });
 
-tb.mwtl.defineWidget({
+tb.wmsy.defineWidget({
   constraint: {
 
   },
 });
 
-tb.mwtl.defineWidget({
+tb.wmsy.defineWidget({
   constraint: {
     type: "gloda",
     noun: "identity",
     detail: "inline",
   },
-  structure: wt.bind("contact", "name"),
+  structure: wy.bind("contact", "name"),
   events: {
-    click: wt.showActions(),
+    click: wy.showActions(),
   }
 });
 
 /**
  * Unfriendly date.
  */
-tb.mwtl.defineWidget({
+tb.wmsy.defineWidget({
   constraint: {
     type: "date",
     mode: "absolute",
@@ -80,7 +79,7 @@ tb.mwtl.defineWidget({
 /**
  * Friendly date.
  */
-tb.mwtl.defineWidget({
+tb.wmsy.defineWidget({
   constraint: {
     type: "date",
     mode: "friendly",
@@ -99,7 +98,7 @@ tb.mwtl.defineWidget({
 /**
  * Message Display.
  */
-tb.mwtl.defineWidget({
+tb.wmsy.defineWidget({
   name: "message",
   instanceId: "id",
   constraint: {
@@ -109,22 +108,21 @@ tb.mwtl.defineWidget({
   // DOM/sub-widget structure
   structure: {
     subjectGroup: {
-      star: wt.subWidget({subpart: "star"}),
-      subject: wt.bind("subject"),
-      tags: wt.widgetList({type: "gloda", noun: "tag"},
-                          {bind: "tags"}),
+      star: wy.subWidget({subpart: "star"}),
+      subject: wy.bind("subject"),
+      tags: wy.widgetList({type: "gloda", noun: "tag"}, "tags"),
     },
     authorGroup: {
-      author: wt.widget({type: "gloda", noun: "identity", detail: "low"},
+      author: wy.widget({type: "gloda", noun: "identity", detail: "low"},
                         "from"),
-      date: wt.widget({type: "date", mode: "friendly", detail: "medium"},
+      date: wy.widget({type: "date", mode: "friendly", detail: "medium"},
                       "date"),
     },
-    recipientsGroup: wt.widgetList({type: "gloda", noun: "identity",
+    recipientsGroup: wy.widgetList({type: "gloda", noun: "identity",
                                     detail: "low"}, "recipients"),
     bodyGroup: {
-      snippet: wt.subWidget({subpart: "body"}),
-      attachments: wt.subWidget({subpart: "attachments"})
+      snippet: wy.subWidget({subpart: "body"}),
+      attachments: wy.subWidget({subpart: "attachments"})
     }
   },
   // styling
@@ -170,20 +168,20 @@ tb.mwtl.defineWidget({
 /**
  * The
  */
-tb.mwtl.defineWidget({
+tb.wmsy.defineWidget({
   name: "message-star",
   constraint: {
     type: "gloda",
     noun: "message",
     subpart: "star",
   },
-  content: wt.bindAttribute("starred", "starred"),
+  content: wy.bind(null, {starred: "starred"}),
   style: {
 
   }
 });
 
-tb.mwtl.defineWidget({
+tb.wmsy.defineWidget({
   name: "message-body",
   constraint: {
     type: "gloda",
@@ -192,13 +190,13 @@ tb.mwtl.defineWidget({
   },
 });
 
-tb.mwtl.defineWidget({
+tb.wmsy.defineWidget({
   name: "tag",
   constraint: {
     type: "gloda",
     noun: "tag",
   },
-  content: wt.bind("tag"),
+  content: wy.bind("tag"),
   style: {
     root:
       "display: inline-block; /* to avoid splitting 'To' and 'Do' e.g. */\
@@ -219,16 +217,16 @@ tb.mwtl.defineWidget({
  * Message collection display.
  *
  */
-tb.mwtl.defineWidget({
+tb.wmsy.defineWidget({
   name: "simple-gloda-collection",
-  kind: tb.mwtl.kCollection,
+  kind: tb.wmsy.kCollection,
   constraint: {
     type: "gloda-collection",
     mode: "list",
   },
   structure: {
     countLabel: "${count} ${!noun.plural}",
-    items: mt.widgetList({type: "gloda"}),
+    items: wy.widgetList({type: "gloda"}),
   },
   contextActions: {
     facetInclude: {
@@ -278,7 +276,7 @@ tb.tabs.defineTabType({
     let recentMsgQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE);
     let recentMsgCollection = recentMsgQuery.getCollection();
 
-    wt.wrap(doc)
+    wy.wrap(doc)
       .emit({type: "gloda", noun: "contact", detail: "high", obj: contact})
       .emit({type: "gloda-collection", noun: "message", mode: "list",
              obj: recentMsgCollection});
