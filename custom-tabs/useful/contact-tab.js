@@ -110,7 +110,7 @@ tb.wmsy.defineWidget({
     subjectGroup: {
       star: wy.subWidget({subpart: "star"}),
       subject: wy.bind("subject"),
-      tags: wy.widgetList({type: "gloda", noun: "tag"}, "tags"),
+      tags: wy.widgetStream({type: "gloda", noun: "tag"}, "tags"),
     },
     authorGroup: {
       author: wy.widget({type: "gloda", noun: "identity", detail: "low"},
@@ -118,7 +118,7 @@ tb.wmsy.defineWidget({
       date: wy.widget({type: "date", mode: "friendly", detail: "medium"},
                       "date"),
     },
-    recipientsGroup: wy.widgetList({type: "gloda", noun: "identity",
+    recipientsGroup: wy.widgetStream({type: "gloda", noun: "identity",
                                     detail: "low"}, "recipients"),
     bodyGroup: {
       snippet: wy.subWidget({subpart: "body"}),
@@ -219,7 +219,6 @@ tb.wmsy.defineWidget({
  */
 tb.wmsy.defineWidget({
   name: "simple-gloda-collection",
-  kind: tb.wmsy.kCollection,
   constraint: {
     type: "gloda-collection",
     mode: "list",
@@ -227,14 +226,6 @@ tb.wmsy.defineWidget({
   structure: {
     countLabel: "${count} ${!noun.plural}",
     items: wy.widgetList({type: "gloda"}),
-  },
-  contextActions: {
-    facetInclude: {
-      label: "Show only in set NOP",
-    },
-    facetExclude: {
-      label: "Exclude from displayed set NOP"
-    },
   },
   // -- Implementation
   constructor: function(aArgs) {
