@@ -128,15 +128,15 @@ tb.wmsy.defineWidget({
   // styling
   style: {
     root: {
-      _:
-        "display: block;\
-        font-family: sans-serif;\
-        font-size: small;\
-        padding: 3px 0;\
-        margin: 3px 0;\
-        border-bottom: 1px solid #ddd;\
-        color: #555;\
-        background-color: #ffffff;",
+      _: <>
+        display: block;
+        font-family: sans-serif;
+        font-size: small;
+        padding: 3px 0;
+        margin: 3px 0;
+        border-bottom: 1px solid #ddd;
+        color: #555;
+        background-color: #ffffff;</>,
 
       ":hover": {
         subject: "color: #000000; background-color: #e0eaf5;",
@@ -198,17 +198,17 @@ tb.wmsy.defineWidget({
   },
   content: wy.bind("tag"),
   style: {
-    root:
-      "display: inline-block; /* to avoid splitting 'To' and 'Do' e.g. */\
-      -moz-margin-start: 0px;\
-      -moz-margin-end: 3px;\
-      padding: 0 0.5ex;\
-      background-image: url('chrome://messenger/skin/tagbg.png');\
-      -moz-border-radius: 3px;\
-      border-style: outset;\
-      border-width: 0.5px;\
-      text-shadow: 0 1px 0 rgba(238,238,236,0.4); /* Tango Alumninum 1 */\
-      color: #111111;"
+    root: <>
+      display: inline-block; /* to avoid splitting 'To' and 'Do' e.g. */
+      -moz-margin-start: 0px;
+      -moz-margin-end: 3px;
+      padding: 0 0.5ex;
+      background-image: url('chrome://messenger/skin/tagbg.png');
+      -moz-border-radius: 3px;
+      border-style: outset;
+      border-width: 0.5px;
+      text-shadow: 0 1px 0 rgba(238,238,236,0.4); /* Tango Alumninum 1 */
+      color: #111111;</>
   },
 });
 
@@ -224,15 +224,14 @@ tb.wmsy.defineWidget({
     mode: "list",
   },
   structure: {
-    countLabel: "${count} ${!noun.plural}",
+    //countLabel: "${count} ${!noun.plural}",
     items: wy.widgetList({type: "gloda"}),
   },
   // -- Implementation
   constructor: function(aArgs) {
-    this.collection = aArgs.collection;
-    this.collection.listener = this;
+    this.obj.listener = this;
 
-    this.onItemsAdded(this.collection.items, this.collection);
+    this.onItemsAdded(this.obj.items, this.obj);
   },
   impl: {
     onItemsAdded: function(aItems) {
