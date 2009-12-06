@@ -4,6 +4,11 @@
  *  define a lot of widgets here because we are standalone.
  */
 
+jetpack.future.import("menu");
+jetpack.future.import("thunderbird.tabs");
+jetpack.future.import("thunderbird.wmsy");
+let tb = jetpack.thunderbird;
+
 const Cu = Components.utils;
 Cu.import("resource://app/modules/gloda/public.js");
 Components.utils.import("resource://app/modules/templateUtils.js");
@@ -53,7 +58,7 @@ tb.wmsy.defineWidget({
     noun: "identity",
     detail: "inline",
   },
-  structure: wy.bind("contact", "name"),
+  structure: wy.bind(["contact", "name"]),
   events: {
     click: wy.showActions(),
   }

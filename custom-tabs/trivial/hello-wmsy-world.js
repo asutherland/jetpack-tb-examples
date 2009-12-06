@@ -13,6 +13,7 @@ tb.wmsy.defineWidget({
   style: {
     root: <>
       font-size: 200%;
+      color: red;
     </>
   }
 });
