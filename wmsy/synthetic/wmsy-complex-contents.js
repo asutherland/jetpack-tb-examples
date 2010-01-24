@@ -53,7 +53,7 @@ tb.wmsy.defineWidget({
   constraint: {
     type: "identity",
   },
-  structure: wy.stream({
+  structure: wy.flow({
     name: wy.bind("name"),
     star: wy.bind("", {starred: "inAddressBook"})
   }),
@@ -83,14 +83,14 @@ tb.wmsy.defineWidget({
     type: "message",
   },
   structure: {
-    fromBlock: wy.stream({
+    fromBlock: wy.flow({
       from: wy.widget({type: "identity"}, "from"),
       saysLabel: " says ",
       subject: wy.bind("subject"),
     }),
-    toBlock: wy.stream({
+    toBlock: wy.flow({
       toLabel: "to: ",
-      to: wy.widgetStream({type: "identity"}, "to", {separator: ", "}),
+      to: wy.widgetFlow({type: "identity"}, "to", {separator: ", "}),
     }),
     bodyBlock: {
       body: wy.bind("body")
@@ -129,7 +129,7 @@ tb.wmsy.defineWidget({
       messageType: "tweet"
     }
   },
-  structure: wy.stream({
+  structure: wy.flow({
     author: wy.widget({type: "identity"}, "from"),
     body: wy.bind("body"),
   }),
