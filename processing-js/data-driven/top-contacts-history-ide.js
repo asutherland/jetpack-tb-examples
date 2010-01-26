@@ -11,14 +11,10 @@ let exampleScript = <><![CDATA[
  */
 
 void setup() {
-  size(250,250);
+  size(640,480);
   frameRate(10);
   strokeWeight(1);
 }
-
-int[] fromMe = { 5, 1, 3, 4, 2, 1, 1, 8, 0, 0, 0, 8, 2, 2, 1, 4, 1, 0};
-
-int[] toMe = { 1, 5, 3, 4, 1, 1, 3, 8, 0, 0, 0, 8, 1, 2, 3, 5, 1, 2};
 
 float rotation = 0.0;
 float rotateStep = TWO_PI / 360;
@@ -29,19 +25,56 @@ color toMeColor = color(192, 255, 192, 128);
 color lineColor = color(128, 128, 128, 64);
 stroke(lineColor);
 
-void draw() {
-  background(255);
-  pushMatrix();
-  translate(125, 125);
+int RING_MARGIN = 40;
+int MAX_CX = width / 2 - RING_MARGIN;
+int MAX_CY = height / 2 - RING_MARGIN;
+int MAX_VX = 1;
+int MAX_VY = 1;
 
+Array contactInfoArr = {};
+
+void setupData(contactInfos) {
+  contactInfoArr = contactInfos;
+  for (int i=0; i < contactInfos.length; i++) {
+    contactInfos[i].rotation = random(TWO_PI);
+    contactInfos[i].rotationRate = TWO_PI * random(2) * 0.003;
+    contactInfos[i].cx = random(-MAX_CX, MAX_CX);
+    contactInfos[i].cy = random(-MAX_CY, MAX_CY);
+    contactInfos[i].vx = random(-MAX_VX, MAX_VX);
+    contactInfos[i].vy = random(-MAX_VY, MAX_VY);
+  }
+}
+
+void drawContact(contactInfo) {
   // figure the linear length desired for display and that is our
   //  circumference.  use that to figure out the base radius
-  int circumference = (fromMe.length * 15);
+  int monthCount = contactInfo.byMonth.length;
+  int circumference = (monthCount * 15);
   float baseR = circumference / TWO_PI;
 
-  rotation = rotation + rotateStep;
+  // - rotation
+  float rotation = contactInfo.rotation + contactInfo.rotationRate;
   if (rotation >= TWO_PI)
     rotation = rotation - TWO_PI;
+  contactInfo.rotation = rotation;
+
+  // - movement
+  float cx = contactInfo.cx + contactInfo.vx;
+  if (cx > MAX_CX || cx < -MAX_CX) {
+    cx = cx - 2 * contactInfo.vx;
+    contactInfo.vx = -contactInfo.vx;
+  }
+  contactInfo.cx = cx;
+
+  flaot cy = contactInfo.cy + contactInfo.vy;
+  if (cy > MAX_CY || cy < -MAX_CY) {
+    cy = cy - 2 * contactInfo.vy;
+    contactInfo.vy = -contactInfo.vy;
+  }
+  contactInfo.cy = cy;
+  pushMatrix();
+  translate(cx, cy);
+
 
   float startAng;
   float endAng;
@@ -49,13 +82,17 @@ void draw() {
   float outerR = baseR + lipSize;
   float innerR = baseR - lipSize;
 
-  for (int i=0; i < fromMe.length; i++) {
-    startAng = i * TWO_PI / fromMe.length + rotation;
-    endAng = (i + 1) * TWO_PI / fromMe.length + rotation;
+  for (int i=0; i < monthCount; i++) {
+    Object month = contactInfo.byMonth[i];
+    int fromMeCount = month.fromMe.length;
+    int toMeCount = month.toMe.length;
 
-    float outerCR = outerR + toMe[i] * 2 + lipSize;
+    startAng = i * TWO_PI / monthCount + rotation;
+    endAng = (i + 1) * TWO_PI / monthCount + rotation;
+
+    float outerCR = outerR + toMeCount * 2 + lipSize;
     color curToColor = lerpColor(baseColor, toMeColor,
-                         constrain(float(toMe[i]) / 8, 0.0, 1.0));
+                         constrain(float(toMeCount) / 8, 0.0, 1.0));
     fill(curToColor);
     beginShape();
     vertex(baseR * cos(startAng), baseR * sin(startAng));
@@ -69,9 +106,9 @@ void draw() {
                  baseR * cos(startAng), baseR * sin(startAng));
     endShape(CLOSE);
 
-    float innerCR = innerR - fromMe[i] * 2 + lipSize - 1;
+    float innerCR = innerR - fromMeCount * 2 + lipSize - 1;
     color curFromColor = lerpColor(baseColor, fromMeColor,
-                           constrain(float(fromMe[i]) / 8, 0.0, 1.0));
+                           constrain(float(fromMeCount) / 8, 0.0, 1.0));
     fill(curFromColor);
     beginShape();
     vertex(baseR * cos(startAng), baseR * sin(startAng));
@@ -84,6 +121,17 @@ void draw() {
                  outerR * cos(startAng), outerR * sin(startAng),
                  baseR * cos(startAng), baseR * sin(startAng));
     endShape(CLOSE);
+  }
+  popMatrix();
+}
+
+void draw() {
+  background(255);
+  pushMatrix();
+  translate(width / 2, height / 2);
+
+  for (int i=0; i < contactInfoArr.length; i++) {
+    drawContact(contactInfoArr[i]);
   }
 
   popMatrix();
@@ -98,15 +146,44 @@ tb.tabs.defineTabType({
     let doc = tab.contentDocument;
     let win = doc.defaultView;;
 
-    // kick off the query
+    doc.getElementById("code").value = exampleScript;
 
+    // kick off the query
+    win.contactResults = [];
     tb.gloda.getTopContactsWithPersonalHistory({
       onHistoryAvailable: function(contactResults) {
         win.contactResults = contactResults;
+        if (("p" in tab) && tab.p)
+          tab.p.setupData(contactResults);
       }
     });
 
-    //tab.p = win.Processing(doc.getElementById("canvas"), processingScript);
+    function stopProcessing() {
+      let canvas = doc.getElementById("canvas");
+      if (("p" in tab) && tab.p) {
+        tab.p.exit();
+        tab.p = null;
+      }
+      if (canvas)
+        canvas.parentNode.removeChild(canvas);
+    }
+
+    function parseAndGo() {
+      let codeString = doc.getElementById("code").value;
+      stopProcessing();
+
+      let canvas = doc.createElement("canvas");
+      canvas.setAttribute("id", "canvas");
+      canvas.setAttribute("width", "640");
+      canvas.setAttribute("height", "480");
+      let canvasHolder = doc.getElementById("canvasHolder");
+      canvasHolder.appendChild(canvas);
+      tab.p = win.Processing(canvas, codeString);
+      tab.p.setupData(win.contactResults);
+    }
+
+    doc.getElementById("reparse").addEventListener("click", parseAndGo, false);
+    doc.getElementById("stop").addEventListener("click", stopProcessing, false);
   },
   html: <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
@@ -119,7 +196,10 @@ tb.tabs.defineTabType({
       <script type="application/javascript" src="resource://jetpack/content/js/processing.js"/>
     </head>
     <body>
-      <canvas id="canvas" width="200px" height="200px"></canvas>
+      <div id="canvasHolder">
+      </div>
+      <button type="button" id="reparse">Update and Go</button>
+      <button type="button" id="stop">Stop!</button><br />
       <textarea id="code" rows="60" cols="80">
       </textarea>
     </body>
