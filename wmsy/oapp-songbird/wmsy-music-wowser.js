@@ -1,4 +1,5 @@
 jetpack.future.import("menu");
+jetpack.future.import("thunderbird.tabs");
 jetpack.future.import("thunderbird.wmsy");
 
 let tb = jetpack.thunderbird;
@@ -8,19 +9,20 @@ function Artist(aName) {
   this.name = aName;
 }
 
-function Disc(aArtist, aName, aKind, aYear, aOwningAlbum) {
+function Disc(aArtist, aName, aKind, aYear, aImageUrlBit, aOwningAlbum) {
   this.artist = aArtist;
   this.name = aName;
   this.kind = aKind;
   this.year = aYear;
   this.owningAlbum = aOwningAlbum;
 
-  this.ownedSingles = null;
+  this.imageUrl = "http://www.petshopboys.co.uk/media/article_images/300/" +
+                    aImageUrlBit + ".jpg";
+
+  this.ownedSingles = [];
 }
 Disc.prototype = {
   addOwnedSingle: function Disc_addOwnedDisc(aDisc) {
-    if (this.ownedSingles == null)
-      this.ownedSingles = [];
     this.ownedSingles.push(aDisc);
   }
 };
@@ -30,268 +32,138 @@ function metafy(aArtistName, aAlbumMappings) {
   let artist = meta.artist = new Artist(aArtistName);
   let albums = meta.albums = [];
   let singles = meta.singles = [];
-  for each (let [kind, albumList] in Iterator(aAlbumMappings)) {
-    for each (let [, [albumName, albumYear, singleDefs]] in Iterator(discList)){
-      let album = new Disc(artist, albumName, kind, albumYear, null);
+  for each (let [kind, discList] in Iterator(aAlbumMappings)) {
+    for each (let [, [albumName, albumYear, urlBit, singleDefs]] in
+              Iterator(discList)){
+      let album = new Disc(artist, albumName, kind, albumYear, urlBit, null);
       albums.push(album);
 
-      for each (let [, [singleName, singleYear]] in Iterator(singleDefs)) {
-        let single = new Disc(artist, singleName, "single", singleYear,
+      for each (let [, [singleName, singleYear, urlBit]] in
+                Iterator(singleDefs)) {
+        let single = new Disc(artist, singleName, "single", singleYear, urlBit,
                               album);
         singles.push(single);
+        album.addOwnedSingle(single);
       }
     }
   }
+  return meta;
 }
 
 let psbMeta = metafy("Pet Shop Boys", {
   album: [
-    ["Please", 1986, [
-       ["West End Girls", 1985],
-       ["Love Comes Quickly", 1986],
-       ["Opportunities (Let's Make Lots of Money)", 1986],
-       ["Suburbia", 1986]
+    ["Please", 1986, 1280, [
+       ["West End Girls", 1985, 1314],
+       ["Love Comes Quickly", 1986, 1316],
+       ["Opportunities (Let's Make Lots of Money)", 1986, 1315],
+       ["Suburbia", 1986, 1317]
     ]],
-    ["Actually", 1987, [
-      ["It's a Sin", 1987],
-      ["What Have I Done To Deserve This?", 1987],
-      ["Rent", 1987],
-      ["Heart", 1988],
+    ["Actually", 1987, 1282, [
+      ["It's a Sin", 1987, 1318],
+      ["What Have I Done To Deserve This?", 1987, 1319],
+      ["Rent", 1987, 1320],
+      ["Heart", 1988, 1322],
     ]],
-    ["Behaviour", 1990, [
-      ["So Hard", 1990],
-      ["Being Boring", 1990],
-      ["How Can You Expect To Be Taken Seriously?", 1991],
-      ["Jealousy", 1991],
+    ["Behaviour", 1990, 1285, [
+      ["So Hard", 1990, 1326],
+      ["Being Boring", 1990, 1327],
+      ["Jealousy", 1991, 1329],
     ]],
-    ["Very", 1993, [
-      ["Can You Forgive Her?", 1993],
-      ["Go West", 1993],
-      ["I Wouldn't Normally Do This Kind Of Thing", 1993],
-      ["Liberation", 1994],
-      ["Yesetreday, When I Was Mad", 1994],
+    ["Very", 1993, 1287, [
+      ["Can You Forgive Her?", 1993, 1333],
+      ["Go West", 1993, 1334],
+      ["I Wouldn't Normally Do This Kind Of Thing", 1993, 1335],
+      ["Liberation", 1994, 1336],
+      ["Yesterday, When I Was Mad", 1994, 1338],
     ]],
-    ["Bilingual", 1996, [
-      ["Before", 1996],
-      ["Se a vida é (That's The Way Life Is)", 1996],
-      ["Single-Bilingual", 1996],
-      ["A Red Letter Day", 1997],
-      ["Somewhere", 1997],
+    ["Bilingual", 1996, 1291, [
+      ["Before", 1996, 1340],
+      ["Se a vida é (That's The Way Life Is)", 1996, 1341],
+      ["Single-Bilingual", 1996, 1342],
+      ["A Red Letter Day", 1997, 1343],
+      ["Somewhere", 1997, 1344],
     ]],
-    ["Nightlife", 1999, [
-      ["I Don't Know What You Want But I Can't Give It Any More", 1999],
-      ["New York City Boy",1999 ],
-      ["You Only Tell Me You Love Me When You're Drunk", 2000],
+    ["Nightlife", 1999, 1295, [
+      ["I Don't Know What You Want But I Can't Give It Any More", 1999, 1345],
+      ["New York City Boy",1999, 1346],
+      ["You Only Tell Me You Love Me When You're Drunk", 2000, 1347],
     ]],
-    ["Release", 2002, [
-      ["Home And Dry", 2002],
-      ["I Get Along", 2002],
-      ["London", 2003],
+    ["Release", 2002, 1302, [
+      ["Home And Dry", 2002, 1348],
+      ["I Get Along", 2002, 1349],
+      ["London", 2003, 1350],
     ]],
-    ["Fundamental", 2006, [
-      ["I'm With Stupid", 2006],
-      ["Minimal", 2006],
-      ["Numb", 2006],
-      ["Integral", 2007],
+    ["Fundamental", 2006, 1305, [
+      ["I'm With Stupid", 2006, 1353],
+      ["Minimal", 2006, 1354],
+      ["Numb", 2006, 1355],
+      ["Integral", 2007, 1357],
     ]],
-    ["Yes", 2009, [
-      ["Love, etc.", 2009],
-      ["Did You See Me Coming?", 2009],
-      ["Beautiful People", 2009],
+    ["Yes", 2009, 1311, [
+      ["Love, etc.", 2009, 1358],
+      ["Did You See Me Coming?", 2009, 1359],
+      ["Beautiful People", 2009, 2123],
     ]],
   ],
   "album.ep": [
-    ["Introspective", 1988, [
-      ["Always On My Mind", 1987],
-      ["Domino Dancing", 1988],
-      ["Left To My Own Devices", 1988],
-      ["It's Alright", 1988],
+    ["Introspective", 1988, 1283, [
+      ["Always On My Mind", 1987, 1321],
+      ["Domino Dancing", 1988, 1323],
+      ["Left To My Own Devices", 1988, 1324],
+      ["It's Alright", 1988, 1325],
     ]],
   ],
 });
 
-
-
-function Identity(aName, aEmail, aInAddressBook) {
-  this.name = aName;
-  this.email = aEmail;
-  this.inAddressBook = aInAddressBook;
-}
-
-function EmailMessage(aFrom, aTo, aSubject, aBody) {
-  this.from = aFrom;
-  this.to = aTo;
-  this.subject = aSubject;
-  this.body = aBody;
-}
-EmailMessage.prototype = {
-  messageType: "rfc822",
-};
-
-function Tweet(aFrom, aBody, aDirectedTo) {
-  this.from = aFrom;
-  this.to = [];
-  this.body = aBody;
-  this.directedTo = aDirectedTo;
-}
-Tweet.prototype = {
-  messageType: "tweet",
-};
-
-let alice = new Identity("Alice", "alice@example.com", true);
-let bob = new Identity("Bob", "bob@example.com", false);
-let chuck = new Identity("Charles Carmichael", "chuck@example.com", false);
-
-let messages = [
-  new EmailMessage(bob, [alice, chuck], "What's the word?",
-                   <>My dear compatriots, how are you doing?
-I write you from outer space.
-It is nice here.</>.toString()),
-  new Tweet(bob, "I just sent an email!"),
-  // for the directed, we're pretending we processed a "@bob" and removed it
-  new Tweet(alice, "yes, yes you did.", bob),
-];
-
-/**
- * General identity representation.
- */
-tb.wmsy.defineWidget({
-  name: "identity-default",
-  constraint: {
-    type: "identity",
-  },
-  structure: wy.flow({
-    name: wy.bind("name"),
-    star: wy.bind("", {starred: "inAddressBook"})
-  }),
-  style: {
-    root: <>
-      -moz-border-radius: 4px;
-      background-color: #ddd;
-      padding: 0px 2px;
-    </>,
-    star: {
-      '[starred="true"]': <>
-        display: inline-block;
-        width: 12px !important;
-        height: 12px;
-        background-image: url("chrome://messenger/skin/icons/flag-col.png");
-      </>
-    }
-  }
-});
-
-/**
- * General message display widget.
- */
-tb.wmsy.defineWidget({
-  name: "message-default",
-  constraint: {
-    type: "message",
-  },
-  structure: {
-    fromBlock: wy.flow({
-      from: wy.widget({type: "identity"}, "from"),
-      saysLabel: " says ",
-      subject: wy.bind("subject"),
-    }),
-    toBlock: wy.flow({
-      toLabel: "to: ",
-      to: wy.widgetFlow({type: "identity"}, "to", {separator: ", "}),
-    }),
-    bodyBlock: {
-      body: wy.bind("body")
-    }
-  },
-  style: {
-    root: <>
-      -moz-border-radius: 4px;
-      background-color: #729fcf;
-      padding: 2px;
-      margin: 4px 0px;
-    </>,
-    subject: <>
-      font-weight: bold;
-    </>,
-    bodyBlock: <>
-      margin: 2px;
-      padding: 2px;
-      -moz-border-radius: 2px;
-      background-color: #ffffff;
-    </>,
-    body: <>
-      white-space: pre-wrap
-    </>
-  }
-});
-
-/**
- * Tweet-specialized display.
- */
-tb.wmsy.defineWidget({
-  name: "message-tweet",
-  constraint: {
-    type: "message",
-    obj: {
-      messageType: "tweet"
-    }
-  },
-  structure: wy.flow({
-    author: wy.widget({type: "identity"}, "from"),
-    body: wy.bind("body"),
-  }),
-  style: {
-    root: <>
-      -moz-border-radius: 4px;
-      background-color: #ad7fa8;
-      margin: 4px 0px;
-    </>,
-    body: <>
-      margin-left: 4px;
-    </>
-  }
-});
 
 ////////////////////////////////////////////////////////////////////////////////
 //// Artist
 
 tb.wmsy.defineWidget({
   name: "artist-detail-view",
+  doc: "Show an artist's albums with singles grouped by owning album.",
   constraint: {
-    type: "artist",
+    type: "artist-meta",
   },
+  bus: ["albumSelected"],
   structure: {
     artistLabel: wy.bind(["artist", "name"]),
     albums: wy.subWidget({subpart: "album-list"}),
     singles: wy.subWidget({subpart: "singles-list"}),
   },
+  style: {
+    artistLabel: <>
+      font-size: 200%;</>,
+  }
 });
 
 tb.wmsy.defineWidget({
   name: "artist:album-list",
   doc: "List of albums by an artist.",
   constraint: {
-    type: "artist",
+    type: "artist-meta",
     subpart: "album-list",
   },
   structure: {
-    albums: wy.widgetList({type: "album-collection"}, "albums"),
+    albums: wy.widgetList({type: "album"}, "albums"),
   },
   emit: ["albumSelected"],
   events: {
     albums: {
       command: function(aAlbumWidget) {
-        this.emit_albumSelected(aAlbumWidget.obj);
+        dump("clicked on " + aAlbumWidget + "\n");
+        dump(" == album: " + aAlbumWidget.obj.name + "\n");
+        //this.emit_albumSelected(aAlbumWidget.obj);
       }
     }
   }
 });
 
-tb.wmsy.defineSubWidget({
+tb.wmsy.defineWidget({
   name: "artist:singles-list",
   doc: "List of singles by an artist, grouped by their owning album.",
   constraint: {
-    type: "artist",
+    type: "artist-meta",
     subpart: "singles-list",
   },
   structure: {
@@ -313,7 +185,6 @@ tb.wmsy.defineWidget({
   doc: "Group of albums from a parameterized attribute.",
   constraint: {
     type: "album-collection",
-    mode: "list",
     attr: wy.WILD,
   },
   structure: {
@@ -322,10 +193,11 @@ tb.wmsy.defineWidget({
   style: {
     root: {
       _: <>
+        display: inline-block;
         padding: 1em;
-        border: none;
+        border: 1px solid #fff;
         background-color: #bbb;</>,
-      '[focused="true"]': <>
+      '[active="true"]': <>
         background-color: #fff;
         border: 1px solid #000;</>,
     }
@@ -342,30 +214,34 @@ tb.wmsy.defineWidget({
     type: "album",
   },
   structure: {
-    cover: {},
+    cover: wy.bindImage("imageUrl"),
     albumTitle: wy.bind("name"),
   },
-  events: {
-    root: {
-      command: function() {
-
-      }
-    }
-  },
+  style: {
+    root: <>
+      display: inline-block;
+      margin: 1em;</>,
+    cover: <>
+      display: block;
+      width: 60px;
+      height: 60px;
+      background-color: #c88;</>,
+    albumTitle: <>
+      display: none;
+      text-align: center;</>,
+  }
 });
 
 
 tb.tabs.defineTabType({
-  name: "wmsyComplexContents",
+  name: "wmsyMusicWowser",
   onTabOpened: function(tab, args) {
-    tab.title = "Wmsy gets a complex";
+    tab.title = "Wowser!";
 
     let doc = tab.contentDocument;
     let emitter = tb.wmsy.wrapElement(doc.getElementById("content"));
 try {
-    for each (let [, message] in Iterator(messages)) {
-      emitter.emit({type: "message", obj: message});
-    }
+      emitter.emit({type: "artist-meta", obj: psbMeta});
 }
 catch(ex) {
   dump("\n\n@@@ " + ex + "\n" + ex.stack + "\n\n");
@@ -387,6 +263,6 @@ catch(ex) {
 });
 
 jetpack.menu.tools.add({
-  label: "Show Wmsy Complex Contents",
-  command: function() tb.tabs.openTab("wmsyComplexContents", {})
+  label: "Music Wowser",
+  command: function() tb.tabs.openTab("wmsyMusicWowser", {})
 });
