@@ -125,6 +125,7 @@ tb.wmsy.defineWidget({
   constraint: {
     type: "artist-meta",
   },
+  focus: wy.focus.container.vertical,
   bus: ["albumSelected"],
   structure: {
     artistLabel: wy.bind(["artist", "name"]),
@@ -144,6 +145,7 @@ tb.wmsy.defineWidget({
     type: "artist-meta",
     subpart: "album-list",
   },
+  focus: wy.focus.container.horizontal,
   structure: {
     albums: wy.widgetList({type: "album"}, "albums"),
   },
@@ -166,6 +168,7 @@ tb.wmsy.defineWidget({
     type: "artist-meta",
     subpart: "singles-list",
   },
+  focus: wy.focus.container.horizontal,
   structure: {
     albumGroups: wy.widgetList({type: "album-collection", attr: "ownedSingles"},
                                "albums"),
@@ -187,6 +190,7 @@ tb.wmsy.defineWidget({
     type: "album-collection",
     attr: wy.WILD,
   },
+  focus: wy.focus.container.horizontal,
   structure: {
     albums: wy.widgetList({type: "album"}, wy.fromConstraint("attr")),
   },
@@ -194,14 +198,14 @@ tb.wmsy.defineWidget({
     root: {
       _: <>
         display: inline-block;
-        padding: 1em;
+        padding: 2px;
         border: 1px solid #fff;
         background-color: #bbb;</>,
       '[active="true"]': <>
         background-color: #fff;
         border: 1px solid #000;</>,
     }
-  }
+  },
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -213,16 +217,22 @@ tb.wmsy.defineWidget({
   constraint: {
     type: "album",
   },
+  focus: wy.focus.item,
   structure: {
     cover: wy.bindImage("imageUrl"),
     albumTitle: wy.bind("name"),
   },
   style: {
-    root: <>
-      display: inline-block;
-      margin: 1em;</>,
+    root: {
+      _: <>
+        display: inline-block;
+        padding: 4px;</>,
+      ':focused': <>
+        background-color: #88c;</>,
+      },
     cover: <>
       display: block;
+      image-rendering: optimizeQuality;
       width: 60px;
       height: 60px;
       background-color: #c88;</>,
