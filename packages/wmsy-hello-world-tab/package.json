@@ -1,0 +1,6 @@
+{
+    "id": "jid0-6gHbyAGtd4ZLnTzsBbncKYSfUXc", 
+    "name": "wmsy-hello-world-tab", 
+    "description": "Create a tools menu option that opens a wmsy hello world tab.",
+    "dependencies": ["wmsy", "tbprime"]
+}

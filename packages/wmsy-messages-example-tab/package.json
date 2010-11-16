@@ -1,0 +1,9 @@
+{
+    "id": "jid0-cbOY4YTlahB9Vd5B1PvmsKv3W1c", 
+    "dependencies": [
+        "wmsy", 
+        "tbprime"
+    ], 
+    "name": "wmsy-message-exampletab", 
+    "description": "Create a tools menu option that opens the wmsy messages example in a tab."
+}
